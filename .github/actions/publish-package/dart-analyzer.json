@@ -1,0 +1,18 @@
+{
+  "problemMatcher": [
+    {
+      "owner": "dart-analyzer",
+      "pattern": [
+        {
+          "regexp": "^\\s*(info|warning|error) - (.*) - (.*):(\\d+):(\\d+) - (\\w+)$",
+          "severity": 1,
+          "message": 2,
+          "file": 3,
+          "line": 4,
+          "column": 5,
+          "code": 6
+        }
+      ]
+    }
+  ]
+}
