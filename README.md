@@ -8,8 +8,8 @@ Consumers keep a small caller workflow and the logic lives here, so a CI fix is 
 
 | Workflow | Purpose |
 | --- | --- |
-| [`ci.yml`](.github/workflows/ci.yml) | Analyze, test, validate the package, and run integration tests (web/Linux by default; Android, iOS, macOS with `full-matrix`; Windows with `include-windows`) |
-| [`create-release.yml`](.github/workflows/create-release.yml) | Validate, then create a tag and GitHub release derived from `pubspec.yaml`, and dispatch the publish workflow |
+| [`ci.yml`](.github/workflows/ci.yml) | Analyze, test, validate the package, and run integration tests (platforms chosen via the required `platforms` input) |
+| [`create-release.yml`](.github/workflows/create-release.yml) | Validate, run the integration tests for the required `platforms` input, then create a tag and GitHub release derived from `pubspec.yaml`, and dispatch the publish workflow |
 | [`publish.yml`](.github/workflows/publish.yml) | Publish to pub.dev via OIDC |
 | [`deploy-demo.yml`](.github/workflows/deploy-demo.yml) | Build the example app and deploy it to GitHub Pages |
 
@@ -29,6 +29,7 @@ jobs:
   ci:
     uses: Tkko/better-actions/.github/workflows/ci.yml@v1
     with:
+      platforms: web,linux
       integration-test-working-directory: example
 ```
 

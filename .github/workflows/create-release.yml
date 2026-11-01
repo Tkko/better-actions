@@ -13,11 +13,10 @@ on:
         required: false
         type: boolean
         default: false
-      include-windows:
-        description: Also validate Windows before creating the release
-        required: false
-        type: boolean
-        default: false
+      platforms:
+        description: 'Comma-separated integration test platforms to pass before releasing: web, linux, android, ios, macos, windows'
+        required: true
+        type: string
       working-directory:
         description: Directory containing pubspec.yaml
         required: false
@@ -109,6 +108,7 @@ jobs:
   integration-web:
     name: Integration Tests (Web Chrome)
     needs: prepare
+    if: ${{ contains(inputs.platforms, 'web') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -134,6 +134,7 @@ jobs:
   integration-linux:
     name: Integration Tests (Linux)
     needs: prepare
+    if: ${{ contains(inputs.platforms, 'linux') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -158,6 +159,7 @@ jobs:
   integration-android:
     name: Integration Tests (Android Emulator)
     needs: prepare
+    if: ${{ contains(inputs.platforms, 'android') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -182,6 +184,7 @@ jobs:
   integration-ios:
     name: Integration Tests (iOS Simulator)
     needs: prepare
+    if: ${{ contains(inputs.platforms, 'ios') }}
     runs-on: macos-latest
     timeout-minutes: 25
     steps:
@@ -206,10 +209,11 @@ jobs:
   integration-desktop:
     name: Integration Tests (${{ matrix.platform }})
     needs: prepare
+    if: ${{ contains(inputs.platforms, 'macos') || contains(inputs.platforms, 'windows') }}
     strategy:
       fail-fast: false
       matrix:
-        platform: ${{ fromJSON(inputs.include-windows && '["macos","windows"]' || '["macos"]') }}
+        platform: ${{ fromJSON(contains(inputs.platforms, 'macos') && contains(inputs.platforms, 'windows') && '["macos","windows"]' || contains(inputs.platforms, 'macos') && '["macos"]' || '["windows"]') }}
     runs-on: ${{ format('{0}-latest', matrix.platform) }}
     timeout-minutes: 20
     steps:
@@ -235,6 +239,7 @@ jobs:
   release:
     name: Create Release & Tag
     needs: [prepare, validate, integration-web, integration-linux, integration-android, integration-ios, integration-desktop]
+    if: ${{ !cancelled() && needs.validate.result == 'success' && !contains(needs.*.result, 'failure') }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
     permissions:

@@ -3,14 +3,10 @@ name: CI
 on:
   workflow_call:
     inputs:
-      full-matrix:
-        description: 'Also run Android, iOS, and macOS integration tests'
-        type: boolean
-        default: false
-      include-windows:
-        description: 'Also run Windows integration tests'
-        type: boolean
-        default: false
+      platforms:
+        description: 'Comma-separated integration test platforms: web, linux, android, ios, macos, windows'
+        required: true
+        type: string
       integration-test-working-directory:
         description: 'Directory containing the integration test Flutter app'
         type: string
@@ -41,6 +37,7 @@ jobs:
       pull-requests: read
     outputs:
       integration: ${{ steps.filter.outputs.integration }}
+      platforms: ${{ inputs.platforms }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
@@ -83,7 +80,7 @@ jobs:
   integration-web:
     name: Integration Tests (Web Chrome)
     needs: changes
-    if: ${{ github.event_name != 'pull_request' || needs.changes.outputs.integration == 'true' }}
+    if: ${{ contains(needs.changes.outputs.platforms, 'web') && (github.event_name != 'pull_request' || needs.changes.outputs.integration == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -108,7 +105,7 @@ jobs:
   integration-linux:
     name: Integration Tests (Linux)
     needs: changes
-    if: ${{ github.event_name != 'pull_request' || needs.changes.outputs.integration == 'true' }}
+    if: ${{ contains(needs.changes.outputs.platforms, 'linux') && (github.event_name != 'pull_request' || needs.changes.outputs.integration == 'true') }}
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -132,7 +129,7 @@ jobs:
   integration-android:
     name: Integration Tests (Android Emulator)
     needs: changes
-    if: ${{ inputs.full-matrix }}
+    if: ${{ contains(needs.changes.outputs.platforms, 'android') }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -156,7 +153,7 @@ jobs:
   integration-ios:
     name: Integration Tests (iOS Simulator)
     needs: changes
-    if: ${{ inputs.full-matrix }}
+    if: ${{ contains(needs.changes.outputs.platforms, 'ios') }}
     runs-on: macos-latest
     timeout-minutes: 25
     steps:
@@ -180,11 +177,11 @@ jobs:
   integration-desktop:
     name: Integration Tests (${{ matrix.platform }})
     needs: changes
-    if: ${{ inputs.full-matrix || inputs.include-windows }}
+    if: ${{ contains(needs.changes.outputs.platforms, 'macos') || contains(needs.changes.outputs.platforms, 'windows') }}
     strategy:
       fail-fast: false
       matrix:
-        platform: ${{ fromJSON(inputs.full-matrix && inputs.include-windows && '["macos","windows"]' || inputs.full-matrix && '["macos"]' || '["windows"]') }}
+        platform: ${{ fromJSON(contains(needs.changes.outputs.platforms, 'macos') && contains(needs.changes.outputs.platforms, 'windows') && '["macos","windows"]' || contains(needs.changes.outputs.platforms, 'macos') && '["macos"]' || '["windows"]') }}
     runs-on: ${{ format('{0}-latest', matrix.platform) }}
     timeout-minutes: 20
     steps:
@@ -218,9 +215,11 @@ jobs:
         env:
           JOB_RESULTS: ${{ toJSON(needs) }}
           RUN_TEST: ${{ github.event_name != 'pull_request' || needs.changes.outputs.integration == 'true' }}
-          RUN_WEB_LINUX: ${{ github.event_name != 'pull_request' || needs.changes.outputs.integration == 'true' }}
-          RUN_MOBILE: ${{ inputs.full-matrix }}
-          RUN_DESKTOP: ${{ inputs.full-matrix || inputs.include-windows }}
+          RUN_WEB: ${{ contains(needs.changes.outputs.platforms, 'web') && (github.event_name != 'pull_request' || needs.changes.outputs.integration == 'true') }}
+          RUN_LINUX: ${{ contains(needs.changes.outputs.platforms, 'linux') && (github.event_name != 'pull_request' || needs.changes.outputs.integration == 'true') }}
+          RUN_ANDROID: ${{ contains(needs.changes.outputs.platforms, 'android') }}
+          RUN_IOS: ${{ contains(needs.changes.outputs.platforms, 'ios') }}
+          RUN_DESKTOP: ${{ contains(needs.changes.outputs.platforms, 'macos') || contains(needs.changes.outputs.platforms, 'windows') }}
         shell: bash
         run: |
           python3 - <<'PY'
@@ -231,8 +230,10 @@ jobs:
           expected = {"changes": "success"}
           for jobs, toggle in [
               (["test"], "RUN_TEST"),
-              (["integration-web", "integration-linux"], "RUN_WEB_LINUX"),
-              (["integration-android", "integration-ios"], "RUN_MOBILE"),
+              (["integration-web"], "RUN_WEB"),
+              (["integration-linux"], "RUN_LINUX"),
+              (["integration-android"], "RUN_ANDROID"),
+              (["integration-ios"], "RUN_IOS"),
               (["integration-desktop"], "RUN_DESKTOP"),
           ]:
               expected.update(dict.fromkeys(jobs, "success" if os.environ[toggle] == "true" else "skipped"))
