@@ -9,6 +9,10 @@ inputs:
     description: Target test file path relative to integration-test-working-directory
     required: false
     default: integration_test/app_test.dart
+  test-timeout-minutes:
+    description: Minutes to wait for one attempt of the integration tests before restarting the simulator and retrying once
+    required: false
+    default: "10"
   flutter-channel:
     description: Flutter SDK channel
     required: false
@@ -42,7 +46,29 @@ runs:
     shell: bash
     env:
       INTEGRATION_TEST_TARGET: ${{ inputs.integration-test-target }}
-    run: flutter test "$INTEGRATION_TEST_TARGET" -d "$SIMULATOR_UDID" --reporter expanded --verbose 2>&1 | tee "$RUNNER_TEMP/ios-tests.log"
+      TEST_TIMEOUT_MINUTES: ${{ inputs.test-timeout-minutes }}
+    run: |
+      # `flutter test` can hang forever on "Waiting for VM Service port to be
+      # available..." after the app launches. Bound each attempt and retry only
+      # when the attempt timed out, so real test failures still fail immediately.
+      LOG="$RUNNER_TEMP/ios-tests.log"
+      : > "$LOG"
+      for attempt in 1 2; do
+        echo "Attempt $attempt (timeout ${TEST_TIMEOUT_MINUTES}m)" | tee -a "$LOG"
+        set +e
+        perl -e 'alarm shift; exec @ARGV' "$((TEST_TIMEOUT_MINUTES * 60))" \
+          flutter test "$INTEGRATION_TEST_TARGET" -d "$SIMULATOR_UDID" --reporter expanded --verbose 2>&1 | tee -a "$LOG"
+        status=${PIPESTATUS[0]}
+        set -e
+        [ "$status" -ne 142 ] && exit "$status"
+        echo "::warning::iOS integration tests timed out on attempt $attempt; restarting the simulator."
+        pkill -f "simctl spawn.*log stream" || true
+        xcrun simctl shutdown "$SIMULATOR_UDID" || true
+        xcrun simctl boot "$SIMULATOR_UDID" || true
+        xcrun simctl bootstatus "$SIMULATOR_UDID" -b
+      done
+      echo "::error::iOS integration tests timed out on every attempt."
+      exit 1
     working-directory: "${{ inputs.integration-test-working-directory }}"
   - name: Capture simulator failure screenshot
     if: "${{ failure() && env.SIMULATOR_UDID != '' }}"
