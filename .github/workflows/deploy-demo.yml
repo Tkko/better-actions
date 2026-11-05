@@ -12,9 +12,9 @@ on:
         type: string
         default: stable
       flutter-version:
-        description: Flutter SDK version
+        description: Flutter SDK version override; empty reads the version from .fvmrc
         type: string
-        default: 3.47.8
+        default: ''
 
 concurrency:
   group: github-pages
@@ -32,11 +32,11 @@ jobs:
       contents: read
       pages: read
     steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
       - name: Checkout shared actions
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: Tkko/better-actions
           ref: ${{ job.workflow_sha }}
@@ -46,9 +46,9 @@ jobs:
           persist-credentials: false
       - uses: ./.github/workflow-actions/.github/actions/build-pages-demo
         with:
-          working-directory: ${{ inputs.working-directory || 'example' }}
-          flutter-channel: ${{ inputs.flutter-channel || 'stable' }}
-          flutter-version: ${{ inputs.flutter-version || '3.47.8' }}
+          working-directory: ${{ inputs.working-directory }}
+          flutter-channel: ${{ inputs.flutter-channel }}
+          flutter-version: ${{ inputs.flutter-version }}
 
   deploy:
     name: Deploy Web Demo
@@ -64,7 +64,7 @@ jobs:
       url: ${{ steps.deployment.outputs.page-url }}
     steps:
       - name: Checkout shared actions
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: Tkko/better-actions
           ref: ${{ job.workflow_sha }}

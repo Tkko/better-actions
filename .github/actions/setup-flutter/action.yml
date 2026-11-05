@@ -2,14 +2,14 @@ name: Set up Flutter package
 description: Install the Flutter SDK with caching and resolve package dependencies
 
 inputs:
+  flutter-version:
+    description: Flutter SDK version override; empty reads the version from .fvmrc in the repository root
+    required: false
+    default: ''
   flutter-channel:
-    description: Flutter SDK channel
+    description: Flutter SDK channel; used when the version is empty and .fvmrc does not name a channel
     required: false
     default: stable
-  flutter-version:
-    description: Flutter SDK version; empty uses channel latest
-    required: false
-    default: '3.47.8'
   working-directory:
     description: Package or app directory in the calling repository
     required: false
@@ -18,11 +18,36 @@ inputs:
 runs:
   using: composite
   steps:
+    - name: Resolve Flutter version
+      id: flutter
+      shell: bash
+      env:
+        VERSION_INPUT: ${{ inputs.flutter-version }}
+        CHANNEL_INPUT: ${{ inputs.flutter-channel }}
+      run: |
+        # FVM allows "3.47.9", "3.47.9@beta" or a bare channel such as "stable".
+        version="$VERSION_INPUT"
+        channel="$CHANNEL_INPUT"
+        if [ -z "$version" ]; then
+          if [ -f "$GITHUB_WORKSPACE/.fvmrc" ]; then
+            version=$(jq -r '.flutter // empty' "$GITHUB_WORKSPACE/.fvmrc")
+          else
+            echo "::warning::No flutter-version input and no .fvmrc; using the latest $channel release."
+          fi
+        fi
+        case "$version" in
+          stable|beta|master|main) channel="${version/main/master}"; version='' ;;
+          *@*) channel="${version#*@}"; version="${version%@*}" ;;
+        esac
+        echo "Flutter version: ${version:-latest} (channel: $channel)"
+        echo "version=$version" >> "$GITHUB_OUTPUT"
+        echo "channel=$channel" >> "$GITHUB_OUTPUT"
+
     - name: Set up Flutter
       uses: subosito/flutter-action@1a449444c387b1966244ae4d4f8c696479add0b2 # v2
       with:
-        channel: ${{ inputs.flutter-channel }}
-        flutter-version: ${{ inputs.flutter-version }}
+        channel: ${{ steps.flutter.outputs.channel }}
+        flutter-version: ${{ steps.flutter.outputs.version }}
         cache: true
 
     - name: Install dependencies

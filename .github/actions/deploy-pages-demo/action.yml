@@ -1,12 +1,12 @@
-name: deploy pages demo
-description: Execute deploy pages demo steps
+name: Deploy Pages demo
+description: Deploy the uploaded demo artifact to GitHub Pages
 outputs:
   page-url:
-    description: Action result
-    value: "${{ steps.deployment.outputs.page_url }}"
+    description: URL of the deployed GitHub Pages site
+    value: ${{ steps.deployment.outputs.page_url }}
 runs:
   using: composite
   steps:
-  - name: Deploy Pages artifact
-    id: deployment
-    uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346
+    - name: Deploy Pages artifact
+      id: deployment
+      uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1

@@ -28,43 +28,16 @@ permissions:
   contents: read
 
 jobs:
-  changes:
-    name: Detect Integration Changes
+  test:
+    name: Test & Analyze
     runs-on: ubuntu-latest
-    timeout-minutes: 5
-    permissions:
-      contents: read
-      pull-requests: read
-    outputs:
-      integration: ${{ steps.filter.outputs.integration }}
-      platforms: ${{ inputs.platforms }}
+    timeout-minutes: 15
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
-      - uses: dorny/paths-filter@15192bc058cc28a13dbf6cde61f19e18988b7af6 # v3
-        id: filter
-        with:
-          predicate-quantifier: every
-          filters: |
-            integration:
-              - '**'
-              - '!**/*.md'
-              - '!docs/**'
-              - '!LICENSE'
-
-  test:
-    name: Test & Analyze
-    needs: changes
-    if: ${{ github.event_name != 'pull_request' || needs.changes.outputs.integration == 'true' }}
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    steps:
-      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
-        with:
-          persist-credentials: false
       - name: Checkout shared actions
-        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           repository: Tkko/better-actions
           ref: ${{ job.workflow_sha }}
@@ -79,18 +52,16 @@ jobs:
 
   integration-tests:
     name: Integration Tests
-    needs: changes
     uses: Tkko/better-actions/.github/workflows/integration-tests.yml@main
     with:
-      platforms: ${{ needs.changes.outputs.platforms }}
-      integration-test-working-directory: ${{ inputs.integration-test-working-directory || 'example' }}
-      integration-test-target: ${{ inputs.integration-test-target || 'integration_test/app_test.dart' }}
-      integration-test-driver: ${{ inputs.integration-test-driver || 'test_driver/integration_test.dart' }}
-      run-web-linux: ${{ github.event_name != 'pull_request' || needs.changes.outputs.integration == 'true' }}
+      platforms: ${{ inputs.platforms }}
+      integration-test-working-directory: ${{ inputs.integration-test-working-directory }}
+      integration-test-target: ${{ inputs.integration-test-target }}
+      integration-test-driver: ${{ inputs.integration-test-driver }}
 
   required:
     name: CI required
-    needs: [changes, test, integration-tests]
+    needs: [test, integration-tests]
     if: ${{ always() }}
     runs-on: ubuntu-latest
     timeout-minutes: 5
@@ -99,7 +70,6 @@ jobs:
       - name: Check required jobs
         env:
           JOB_RESULTS: ${{ toJSON(needs) }}
-          RUN_TEST: ${{ github.event_name != 'pull_request' || needs.changes.outputs.integration == 'true' }}
         shell: bash
         run: |
           python3 - <<'PY'
@@ -107,9 +77,7 @@ jobs:
           import os
           import sys
 
-          expected = {"changes": "success"}
-          expected["test"] = "success" if os.environ["RUN_TEST"] == "true" else "skipped"
-          expected["integration-tests"] = "success"
+          expected = {"test": "success", "integration-tests": "success"}
           results = json.loads(os.environ["JOB_RESULTS"])
           failed = False
           for job, status in expected.items():

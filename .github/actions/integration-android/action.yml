@@ -2,14 +2,6 @@ name: Run Android integration tests
 description: Run Flutter integration tests and upload failure diagnostics on android
 
 inputs:
-  flutter-channel:
-    description: Flutter SDK channel
-    required: false
-    default: stable
-  flutter-version:
-    description: Flutter SDK version; empty uses channel latest
-    required: false
-    default: '3.47.8'
   integration-test-working-directory:
     description: 'Directory containing the integration test Flutter app'
     required: false
@@ -29,8 +21,6 @@ runs:
     - name: Set up Flutter package
       uses: ./.github/workflow-actions/.github/actions/setup-flutter
       with:
-        flutter-channel: ${{ inputs.flutter-channel }}
-        flutter-version: ${{ inputs.flutter-version }}
         working-directory: ${{ inputs.integration-test-working-directory }}
 
     - name: Set up Java
@@ -89,7 +79,7 @@ runs:
           '
 
     - name: Upload failure diagnostics
-      if: ${{ failure() }}
+      if: ${{ failure() || cancelled() }}
       uses: ./.github/workflow-actions/.github/actions/upload-test-diagnostics
       with:
         name: android-test-diagnostics

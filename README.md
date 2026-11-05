@@ -55,7 +55,7 @@ Each workflow's inputs are listed under `workflow_call` in its file. Inputs are 
 
 ## Composite actions
 
-Step-level building blocks used by the workflows, under [`.github/actions`](.github/actions): `setup-flutter`, `validate-package`, `release-metadata`, `create-release`, `publish-package`, `build-pages-demo`, `deploy-pages-demo`, `upload-test-diagnostics`, and `integration-{android,ios,linux,desktop,web}`. The integration and validation actions share `upload-test-diagnostics` to upload failure logs and screenshots consistently.
+Step-level building blocks used by the workflows, under [`.github/actions`](.github/actions): `setup-flutter` (installs the Flutter version from the caller's `.fvmrc`), `validate-package`, `release-metadata`, `create-release`, `publish-package`, `build-pages-demo`, `deploy-pages-demo`, `upload-test-diagnostics`, and `integration-{android,ios,linux,desktop,web}`. The integration and validation actions share `upload-test-diagnostics` to upload failure logs and screenshots consistently.
 
 Each reusable workflow checks this repository out at `job.workflow_sha`, so the actions always match the workflow version the caller pinned.
 
