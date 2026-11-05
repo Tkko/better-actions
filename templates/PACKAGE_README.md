@@ -21,14 +21,17 @@ the sections in between may be dropped when they don't apply, but keep their ord
 
 [Live demo]({{LIVE_DEMO_URL}}) · [Install](#install) · [Usage](#usage) · [pub.dev](https://pub.dev/packages/{{PUB_PACKAGE}}) · [Changelog](CHANGELOG.md)
 
+<a href="https://ko-fi.com/flutterman"><img height="40" src="https://user-images.githubusercontent.com/26390946/161375565-e7d64410-bbcf-4a28-896b-7514e106478e.png" alt="Support on Ko-fi"></a>
+<a href="https://www.buymeacoffee.com/fman"><img height="40" src="https://user-images.githubusercontent.com/26390946/161375563-69c634fd-89d2-45ac-addd-931b03996b34.png" alt="Buy Me a Coffee"></a>
+
 </div>
 
 <br>
 
-<!-- Demo: one table, up to three columns, width 260 -->
+<!-- Demo: one table, up to three columns, height 400 -->
 | Demo 1 | Demo 2 | Demo 3 |
 | :---: | :---: | :---: |
-| <img width="260" src="{{DEMO_1}}" alt="Demo 1" /> | <img width="260" src="{{DEMO_2}}" alt="Demo 2" /> | <img width="260" src="{{DEMO_3}}" alt="Demo 3" /> |
+| <img height="400" src="{{DEMO_1}}" alt="Demo 1" /> | <img height="400" src="{{DEMO_2}}" alt="Demo 2" /> | <img height="400" src="{{DEMO_3}}" alt="Demo 3" /> |
 
 ## Features
 
@@ -88,7 +91,7 @@ PRs are welcome.
 
 <div align="center">
 
-Made by [Tornike](https://www.linkedin.com/in/thornike/) · [Discord](https://rebrand.ly/qwc3s0d) · [Ko-fi](https://ko-fi.com/flutterman) · [Buy Me a Coffee](https://www.buymeacoffee.com/fman) · [MIT License](LICENSE)
+Made by [Tornike](https://www.linkedin.com/in/thornike/) · [Discord](https://rebrand.ly/qwc3s0d) · [MIT License](LICENSE)
 
 If this package helps you, a ⭐ on GitHub means a lot.
 
