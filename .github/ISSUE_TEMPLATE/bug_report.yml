@@ -1,0 +1,49 @@
+name: Bug report
+description: A workflow or action isn't working as expected
+title: "[Bug]: "
+labels: [bug]
+assignees: [Tkko]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for taking the time to report a bug! Please search [existing issues](https://github.com/Tkko/better-actions/issues) first.
+  - type: textarea
+    id: description
+    attributes:
+      label: Describe the bug
+      description: A clear and concise description of what went wrong.
+    validations:
+      required: true
+  - type: input
+    id: workflow
+    attributes:
+      label: Workflow or action
+      placeholder: e.g. ci.yml, publish.yml, setup-flutter
+    validations:
+      required: true
+  - type: input
+    id: ref
+    attributes:
+      label: Version used
+      description: The tag or commit SHA you pin to.
+      placeholder: e.g. v1
+    validations:
+      required: true
+  - type: textarea
+    id: caller
+    attributes:
+      label: Caller workflow
+      description: The `uses:` and `with:` section of your calling workflow.
+      render: yaml
+    validations:
+      required: true
+  - type: input
+    id: run
+    attributes:
+      label: Link to the failing run
+  - type: textarea
+    id: logs
+    attributes:
+      label: Relevant logs and extra context
+      render: shell
