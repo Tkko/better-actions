@@ -21,6 +21,10 @@ the sections in between may be dropped when they don't apply, but keep their ord
 
 [Live demo]({{LIVE_DEMO_URL}}) · [Install](#install) · [Usage](#usage) · [pub.dev](https://pub.dev/packages/{{PUB_PACKAGE}}) · [Changelog](CHANGELOG.md)
 
+<b>🚀 Have a project in mind? <a href="https://www.linkedin.com/in/thornike/">Let's work together on LinkedIn</a>.</b>
+
+<b>Enjoying this package? Help keep it maintained.</b>
+
 <a href="https://ko-fi.com/flutterman"><img height="40" src="https://user-images.githubusercontent.com/26390946/161375565-e7d64410-bbcf-4a28-896b-7514e106478e.png" alt="Support on Ko-fi"></a>
 <a href="https://www.buymeacoffee.com/fman"><img height="40" src="https://user-images.githubusercontent.com/26390946/161375563-69c634fd-89d2-45ac-addd-931b03996b34.png" alt="Buy Me a Coffee"></a>
 
@@ -31,18 +35,14 @@ the sections in between may be dropped when they don't apply, but keep their ord
 <!-- Demo: one table, up to three columns, height 400 -->
 | Demo 1 | Demo 2 | Demo 3 |
 | :---: | :---: | :---: |
-| <img height="400" src="{{DEMO_1}}" alt="Demo 1" /> | <img height="400" src="{{DEMO_2}}" alt="Demo 2" /> | <img height="400" src="{{DEMO_3}}" alt="Demo 3" /> |
+| <img width="180" height="400" src="{{DEMO_1}}" alt="Demo 1" /> | <img width="180" height="400" src="{{DEMO_2}}" alt="Demo 2" /> | <img width="180" height="400" src="{{DEMO_3}}" alt="Demo 3" /> |
 
 ## Features
 
 - Feature 1
 - Feature 2
 
-## Platform support
-
-| Android | iOS | Web | macOS | Windows | Linux |
-| :---: | :---: | :---: | :---: | :---: | :---: |
-| ✅ | ✅ | ✅ | ✅ | ✅ | ✅ |
+**Platforms:** Android, iOS, web, macOS, Windows and Linux.
 
 ## Install
 
@@ -91,7 +91,7 @@ PRs are welcome.
 
 <div align="center">
 
-Made by [Tornike](https://www.linkedin.com/in/thornike/) · [Discord](https://rebrand.ly/qwc3s0d) · [MIT License](LICENSE)
+Made by [Tornike](https://www.linkedin.com/in/thornike/) · [MIT License](LICENSE)
 
 If this package helps you, a ⭐ on GitHub means a lot.
 

@@ -77,6 +77,6 @@ Semantic versioning with moving major tags. `v1` always points to the latest `v1
 
 <div align="center">
 
-Made by [Tornike](https://www.linkedin.com/in/thornike/) · [Discord](https://rebrand.ly/qwc3s0d)
+Made by [Tornike](https://www.linkedin.com/in/thornike/)
 
 </div>
