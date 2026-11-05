@@ -1,18 +1,10 @@
-name: validate package
-description: Execute validate package steps
+name: Validate package
+description: Check formatting, analyze, run unit tests, and optionally run a publish dry run and pana
 inputs:
-  flutter-channel:
-    description: Flutter SDK channel to use (stable, beta, master)
-    required: false
-    default: stable
-  flutter-version:
-    description: Specific Flutter SDK version (optional, empty uses channel latest)
-    required: false
-    default: 3.47.8
   working-directory:
     description: Working directory of the primary Flutter package
     required: false
-    default: "."
+    default: '.'
   run-format:
     description: Whether to verify code formatting with dart format
     required: false
@@ -36,46 +28,44 @@ inputs:
 runs:
   using: composite
   steps:
-  - name: Set up Flutter package
-    uses: "./.github/workflow-actions/.github/actions/setup-flutter"
-    with:
-      flutter-channel: "${{ inputs.flutter-channel }}"
-      flutter-version: "${{ inputs.flutter-version }}"
-      working-directory: "${{ inputs.working-directory }}"
-  - name: Verify formatting
-    if: "${{ inputs.run-format == 'true' }}"
-    run: dart format --output=none --set-exit-if-changed .
-    working-directory: "${{ inputs.working-directory }}"
-    shell: bash
-  - name: Analyze code
-    if: "${{ inputs.run-analyze == 'true' }}"
-    run: flutter analyze
-    working-directory: "${{ inputs.working-directory }}"
-    shell: bash
-  - name: Run tests
-    if: "${{ inputs.run-test == 'true' }}"
-    run: flutter test --reporter expanded 2>&1 | tee "$RUNNER_TEMP/package-tests.log"
-    working-directory: "${{ inputs.working-directory }}"
-    shell: bash
-  - name: Pub publish dry-run
-    if: "${{ inputs.run-publish-dry-run == 'true' }}"
-    run: flutter pub publish --dry-run
-    working-directory: "${{ inputs.working-directory }}"
-    shell: bash
-  - name: Install webp (for pana screenshot validation)
-    if: "${{ inputs.run-pana == 'true' }}"
-    run: sudo apt-get update && sudo apt-get install -y --no-install-recommends webp
-    shell: bash
-  - name: Verify all points from pana
-    if: "${{ inputs.run-pana == 'true' }}"
-    run: |
-      flutter pub global activate pana
-      flutter packages pub global run pana --exit-code-threshold 0 .
-    working-directory: "${{ inputs.working-directory }}"
-    shell: bash
-  - name: Upload failure diagnostics
-    if: "${{ failure() }}"
-    uses: "./.github/workflow-actions/.github/actions/upload-test-diagnostics"
-    with:
-      name: package-test-diagnostics
-      path: "${{ runner.temp }}/package-tests.log"
+    - name: Set up Flutter package
+      uses: ./.github/workflow-actions/.github/actions/setup-flutter
+      with:
+        working-directory: ${{ inputs.working-directory }}
+    - name: Verify formatting
+      if: ${{ inputs.run-format == 'true' }}
+      run: dart format --output=none --set-exit-if-changed .
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+    - name: Analyze code
+      if: ${{ inputs.run-analyze == 'true' }}
+      run: flutter analyze
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+    - name: Run tests
+      if: ${{ inputs.run-test == 'true' }}
+      run: flutter test --reporter expanded 2>&1 | tee "$RUNNER_TEMP/package-tests.log"
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+    - name: Pub publish dry-run
+      if: ${{ inputs.run-publish-dry-run == 'true' }}
+      run: flutter pub publish --dry-run
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+    - name: Install webp (for pana screenshot validation)
+      if: ${{ inputs.run-pana == 'true' }}
+      run: sudo apt-get update && sudo apt-get install -y --no-install-recommends webp
+      shell: bash
+    - name: Verify all points from pana
+      if: ${{ inputs.run-pana == 'true' }}
+      run: |
+        flutter pub global activate pana
+        flutter packages pub global run pana --exit-code-threshold 0 .
+      working-directory: ${{ inputs.working-directory }}
+      shell: bash
+    - name: Upload failure diagnostics
+      if: ${{ failure() || cancelled() }}
+      uses: ./.github/workflow-actions/.github/actions/upload-test-diagnostics
+      with:
+        name: package-test-diagnostics
+        path: "${{ runner.temp }}/package-tests.log"
