@@ -25,8 +25,8 @@ the sections in between may be dropped when they don't apply, but keep their ord
 
 <b>Enjoying this package? Help keep it maintained.</b>
 
-<a href="https://ko-fi.com/flutterman"><img height="40" src="https://user-images.githubusercontent.com/26390946/161375565-e7d64410-bbcf-4a28-896b-7514e106478e.png" alt="Support on Ko-fi"></a>
-<a href="https://www.buymeacoffee.com/fman"><img height="40" src="https://user-images.githubusercontent.com/26390946/161375563-69c634fd-89d2-45ac-addd-931b03996b34.png" alt="Buy Me a Coffee"></a>
+<a href="https://ko-fi.com/tornike_dev"><img width="72" height="40" src="https://user-images.githubusercontent.com/26390946/161375565-e7d64410-bbcf-4a28-896b-7514e106478e.png" alt="Support on Ko-fi"></a>
+<a href="https://www.buymeacoffee.com/tornike.dev"><img width="72" height="40" src="https://user-images.githubusercontent.com/26390946/161375563-69c634fd-89d2-45ac-addd-931b03996b34.png" alt="Buy Me a Coffee"></a>
 
 </div>
 
