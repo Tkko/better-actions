@@ -108,7 +108,7 @@ jobs:
   integration-tests:
     name: Integration Tests
     needs: prepare
-    uses: Tkko/better-actions/.github/workflows/integration-tests.yml@v1
+    uses: Tkko/better-actions/.github/workflows/integration-tests.yml@main
     with:
       platforms: ${{ inputs.platforms }}
       integration-test-working-directory: ${{ inputs.integration-test-working-directory }}

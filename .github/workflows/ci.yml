@@ -80,7 +80,7 @@ jobs:
   integration-tests:
     name: Integration Tests
     needs: changes
-    uses: Tkko/better-actions/.github/workflows/integration-tests.yml@v1
+    uses: Tkko/better-actions/.github/workflows/integration-tests.yml@main
     with:
       platforms: ${{ needs.changes.outputs.platforms }}
       integration-test-working-directory: ${{ inputs.integration-test-working-directory || 'example' }}
