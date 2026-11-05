@@ -1,0 +1,205 @@
+name: Integration Tests
+
+on:
+  workflow_call:
+    inputs:
+      platforms:
+        description: 'Comma-separated integration test platforms: web, linux, android, ios, macos, windows'
+        required: true
+        type: string
+      integration-test-working-directory:
+        description: Directory containing the integration test Flutter app
+        type: string
+        default: example
+      integration-test-target:
+        description: Integration test file relative to the working directory
+        type: string
+        default: integration_test/app_test.dart
+      integration-test-driver:
+        description: Web integration test driver file
+        type: string
+        default: test_driver/integration_test.dart
+      checkout-ref:
+        description: Commit or ref to check out from the calling repository
+        type: string
+        default: ''
+      run-web-linux:
+        description: Whether web and Linux tests should run
+        type: boolean
+        default: true
+      ios-timeout-minutes:
+        description: Timeout in minutes for iOS integration tests
+        type: number
+        default: 40
+
+permissions:
+  contents: read
+
+jobs:
+  web:
+    name: Integration Tests (Web Chrome)
+    if: ${{ contains(inputs.platforms, 'web') && inputs.run-web-linux }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.checkout-ref || github.sha }}
+          persist-credentials: false
+      - name: Checkout shared actions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: Tkko/better-actions
+          ref: ${{ job.workflow_sha }}
+          path: .github/workflow-actions
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: ./.github/workflow-actions/.github/actions/integration-web
+        with:
+          integration-test-working-directory: ${{ inputs.integration-test-working-directory }}
+          integration-test-target: ${{ inputs.integration-test-target }}
+          integration-test-driver: ${{ inputs.integration-test-driver }}
+
+  linux:
+    name: Integration Tests (Linux)
+    if: ${{ contains(inputs.platforms, 'linux') && inputs.run-web-linux }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.checkout-ref || github.sha }}
+          persist-credentials: false
+      - name: Checkout shared actions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: Tkko/better-actions
+          ref: ${{ job.workflow_sha }}
+          path: .github/workflow-actions
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: ./.github/workflow-actions/.github/actions/integration-linux
+        with:
+          integration-test-working-directory: ${{ inputs.integration-test-working-directory }}
+          integration-test-target: ${{ inputs.integration-test-target }}
+
+  android:
+    name: Integration Tests (Android Emulator)
+    if: ${{ contains(inputs.platforms, 'android') }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.checkout-ref || github.sha }}
+          persist-credentials: false
+      - name: Checkout shared actions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: Tkko/better-actions
+          ref: ${{ job.workflow_sha }}
+          path: .github/workflow-actions
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: ./.github/workflow-actions/.github/actions/integration-android
+        with:
+          integration-test-working-directory: ${{ inputs.integration-test-working-directory }}
+          integration-test-target: ${{ inputs.integration-test-target }}
+
+  ios:
+    name: Integration Tests (iOS Simulator)
+    if: ${{ contains(inputs.platforms, 'ios') }}
+    runs-on: macos-latest
+    timeout-minutes: ${{ inputs.ios-timeout-minutes }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.checkout-ref || github.sha }}
+          persist-credentials: false
+      - name: Checkout shared actions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: Tkko/better-actions
+          ref: ${{ job.workflow_sha }}
+          path: .github/workflow-actions
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: ./.github/workflow-actions/.github/actions/integration-ios
+        with:
+          integration-test-working-directory: ${{ inputs.integration-test-working-directory }}
+          integration-test-target: ${{ inputs.integration-test-target }}
+
+  desktop:
+    name: Integration Tests (${{ matrix.platform }})
+    if: ${{ contains(inputs.platforms, 'macos') || contains(inputs.platforms, 'windows') }}
+    strategy:
+      fail-fast: false
+      matrix:
+        platform: ${{ fromJSON(contains(inputs.platforms, 'macos') && contains(inputs.platforms, 'windows') && '["macos","windows"]' || contains(inputs.platforms, 'macos') && '["macos"]' || '["windows"]') }}
+    runs-on: ${{ format('{0}-latest', matrix.platform) }}
+    timeout-minutes: 20
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          ref: ${{ inputs.checkout-ref || github.sha }}
+          persist-credentials: false
+      - name: Checkout shared actions
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1
+        with:
+          repository: Tkko/better-actions
+          ref: ${{ job.workflow_sha }}
+          path: .github/workflow-actions
+          sparse-checkout: .github/actions
+          sparse-checkout-cone-mode: false
+          persist-credentials: false
+      - uses: ./.github/workflow-actions/.github/actions/integration-desktop
+        with:
+          platform: ${{ matrix.platform }}
+          integration-test-working-directory: ${{ inputs.integration-test-working-directory }}
+          integration-test-target: ${{ inputs.integration-test-target }}
+
+  required:
+    name: Integration tests required
+    needs: [web, linux, android, ios, desktop]
+    if: ${{ always() }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions: {}
+    steps:
+      - name: Check selected platform jobs
+        env:
+          JOB_RESULTS: ${{ toJSON(needs) }}
+          RUN_WEB: ${{ contains(inputs.platforms, 'web') && inputs.run-web-linux }}
+          RUN_LINUX: ${{ contains(inputs.platforms, 'linux') && inputs.run-web-linux }}
+          RUN_ANDROID: ${{ contains(inputs.platforms, 'android') }}
+          RUN_IOS: ${{ contains(inputs.platforms, 'ios') }}
+          RUN_DESKTOP: ${{ contains(inputs.platforms, 'macos') || contains(inputs.platforms, 'windows') }}
+        shell: bash
+        run: |
+          python3 - <<'PY'
+          import json
+          import os
+          import sys
+
+          expected = {}
+          for job, toggle in [
+              ("web", "RUN_WEB"),
+              ("linux", "RUN_LINUX"),
+              ("android", "RUN_ANDROID"),
+              ("ios", "RUN_IOS"),
+              ("desktop", "RUN_DESKTOP"),
+          ]:
+              expected[job] = "success" if os.environ[toggle] == "true" else "skipped"
+          results = json.loads(os.environ["JOB_RESULTS"])
+          failed = False
+          for job, status in expected.items():
+              actual = results[job]["result"]
+              if actual != status:
+                  print(f"::error::{job}: expected {status}, got {actual}")
+                  failed = True
+          sys.exit(1 if failed else 0)
+          PY

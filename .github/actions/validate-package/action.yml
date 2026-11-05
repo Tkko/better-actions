@@ -75,9 +75,7 @@ runs:
     shell: bash
   - name: Upload failure diagnostics
     if: "${{ failure() }}"
-    uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02
+    uses: "./.github/workflow-actions/.github/actions/upload-test-diagnostics"
     with:
       name: package-test-diagnostics
       path: "${{ runner.temp }}/package-tests.log"
-      retention-days: 7
-      if-no-files-found: warn

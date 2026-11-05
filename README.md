@@ -10,6 +10,7 @@ Consumers keep a small caller workflow and the logic lives here, so a CI fix is 
 | --- | --- |
 | [`ci.yml`](.github/workflows/ci.yml) | Analyze, test, validate the package, and run integration tests (platforms chosen via the required `platforms` input) |
 | [`create-release.yml`](.github/workflows/create-release.yml) | Validate, run the integration tests for the required `platforms` input, then create a tag and GitHub release derived from `pubspec.yaml`, and dispatch the publish workflow |
+| [`integration-tests.yml`](.github/workflows/integration-tests.yml) | Shared platform integration-test jobs used by CI and release workflows |
 | [`publish.yml`](.github/workflows/publish.yml) | Publish to pub.dev via OIDC |
 | [`deploy-demo.yml`](.github/workflows/deploy-demo.yml) | Build the example app and deploy it to GitHub Pages |
 
@@ -54,7 +55,7 @@ Each workflow's inputs are listed under `workflow_call` in its file. Inputs are 
 
 ## Composite actions
 
-Step-level building blocks used by the workflows, under [`.github/actions`](.github/actions): `setup-flutter`, `validate-package`, `release-metadata`, `create-release`, `publish-package`, `build-pages-demo`, `deploy-pages-demo`, and `integration-{android,ios,linux,desktop,web}`.
+Step-level building blocks used by the workflows, under [`.github/actions`](.github/actions): `setup-flutter`, `validate-package`, `release-metadata`, `create-release`, `publish-package`, `build-pages-demo`, `deploy-pages-demo`, `upload-test-diagnostics`, and `integration-{android,ios,linux,desktop,web}`. The integration and validation actions share `upload-test-diagnostics` to upload failure logs and screenshots consistently.
 
 Each reusable workflow checks this repository out at `job.workflow_sha`, so the actions always match the workflow version the caller pinned.
 

@@ -1,0 +1,19 @@
+name: Upload test diagnostics
+description: Upload test logs and failure artifacts
+inputs:
+  name:
+    description: Artifact name
+    required: true
+  path:
+    description: File or files to upload
+    required: true
+runs:
+  using: composite
+  steps:
+    - name: Upload test diagnostics
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: ${{ inputs.name }}
+        path: ${{ inputs.path }}
+        retention-days: 7
+        if-no-files-found: warn
