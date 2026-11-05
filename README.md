@@ -71,4 +71,12 @@ Semantic versioning with moving major tags. `v1` always points to the latest `v1
 
 ## License
 
-[MIT](LICENSE)
+[MIT](LICENSE). New package READMEs start from [`templates/PACKAGE_README.md`](templates/PACKAGE_README.md).
+
+---
+
+<div align="center">
+
+Made by [Tornike](https://www.linkedin.com/in/thornike/)
+
+</div>
