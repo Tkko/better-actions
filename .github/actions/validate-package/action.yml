@@ -59,7 +59,7 @@ runs:
     - name: Verify all points from pana
       if: ${{ inputs.run-pana == 'true' }}
       run: |
-        flutter pub global activate pana
+        flutter pub global activate pana 0.23.19
         flutter packages pub global run pana --exit-code-threshold 0 .
       working-directory: ${{ inputs.working-directory }}
       shell: bash
