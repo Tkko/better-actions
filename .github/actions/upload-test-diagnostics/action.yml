@@ -7,6 +7,10 @@ inputs:
   path:
     description: File or files to upload
     required: true
+  retention-days:
+    description: Days to keep the artifact
+    required: false
+    default: '7'
 runs:
   using: composite
   steps:
@@ -15,5 +19,5 @@ runs:
       with:
         name: ${{ inputs.name }}
         path: ${{ inputs.path }}
-        retention-days: 7
+        retention-days: ${{ inputs.retention-days }}
         if-no-files-found: warn
