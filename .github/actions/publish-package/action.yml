@@ -16,6 +16,12 @@ inputs:
 runs:
   using: composite
   steps:
+    # Exchanges the GitHub OIDC token for pub.dev's PUB_TOKEN (needs id-token: write on the job);
+    # without it `flutter pub publish` falls back to an interactive login.
+    - name: Configure pub.dev OIDC authentication
+      uses: dart-lang/setup-dart@6afc89df92d6eb3834022f73cd65adc8cdfcb92d
+      with:
+        sdk: 3.13.7
     - name: Set up Flutter package
       uses: ./.github/workflow-actions/.github/actions/setup-flutter
       with:
@@ -23,7 +29,6 @@ runs:
         flutter-version: ${{ inputs.flutter-version }}
         working-directory: ${{ inputs.working-directory }}
     - name: Publish to pub.dev
-      # pub reads the GitHub OIDC token itself (needs id-token: write on the job)
       run: flutter pub publish --force
       working-directory: ${{ inputs.working-directory }}
       shell: bash
