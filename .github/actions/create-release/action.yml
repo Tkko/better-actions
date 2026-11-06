@@ -48,5 +48,10 @@ runs:
         GH_TOKEN: ${{ github.token }}
         TAG: ${{ inputs.release-tag }}
         PUBLISH_WORKFLOW: ${{ inputs.publish-workflow }}
-      run: gh workflow run "$PUBLISH_WORKFLOW" --ref "$TAG"
+      # The commit was just validated, so ask publish to skip re-validating it.
+      # Callers that do not declare the skip_validation input reject the
+      # dispatch, so fall back to a plain dispatch (publish then validates).
+      run: |
+        gh workflow run "$PUBLISH_WORKFLOW" --ref "$TAG" -f skip_validation=true \
+          || gh workflow run "$PUBLISH_WORKFLOW" --ref "$TAG"
       shell: bash
