@@ -21,7 +21,7 @@ runs:
       with:
         working-directory: ${{ inputs.integration-test-working-directory }}
     - name: Setup Chrome & Chromedriver
-      uses: nanasess/setup-chromedriver@c75c3d53d445b96d41dbf2355797b470953c6c30 # v2.4.0
+      uses: nanasess/setup-chromedriver@e913548694400f275b4070efcd90f47dbbc8914c # v3.0.0
     - name: Launch Chromedriver
       shell: bash
       run: |
