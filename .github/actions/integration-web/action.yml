@@ -20,12 +20,11 @@ runs:
       uses: ./.github/workflow-actions/.github/actions/setup-flutter
       with:
         working-directory: ${{ inputs.integration-test-working-directory }}
-    - name: Setup Chrome & Chromedriver
-      uses: nanasess/setup-chromedriver@c75c3d53d445b96d41dbf2355797b470953c6c30 # v2.4.0
     - name: Launch Chromedriver
       shell: bash
       run: |
-        chromedriver --port=4444 > "$RUNNER_TEMP/chromedriver.log" 2>&1 &
+        # ubuntu runners ship Chrome and a matching chromedriver
+        "$CHROMEWEBDRIVER/chromedriver" --port=4444 > "$RUNNER_TEMP/chromedriver.log" 2>&1 &
         curl --fail --silent --show-error --retry 10 --retry-connrefused --retry-delay 1 --max-time 2 \
           http://127.0.0.1:4444/status | jq -e '.value.ready == true'
     - name: Run Web Integration Tests
